@@ -3,6 +3,10 @@ use strict;
 
 # Copyright 2008, Andrew Ross andy@plausible.org
 # Distributable under the terms of the GNU GPL, see COPYING for details
+#
+# 25-10-2011 Nito@Qindel.ES -- Support android NDK r6. Changes
+#    - Directory in /usr/local/android-ndk symlink to /usr/local/android-ndk-r6
+#    - change arm-eabi-agcc to arm-linux-androideabi-gcc
 
 # The Android toolchain is ... rough.  Rather than try to manage the
 # complexity directly, this script wraps the tools into an "agcc" that
@@ -22,7 +26,7 @@ use strict;
 #           control is provided over specific gcc warning flags.
 #
 # Notes:
-# + The prebuilt arm-eabi-gcc from a built (!) android source
+# + The prebuilt arm-linux-androideabi-gcc from a built (!) android source
 #   directory must be on your PATH.
 # + All files are compiled with -fPIC to an ARMv5TE target.  No
 #   support is provided for thumb.
@@ -30,19 +34,8 @@ use strict;
 #   -shared, it uses the file name always (so don't pass a directory in
 #   the output path for a shared library!)
 
-# Dance around to find the actual android toolchain path (it's very
-# deep, so links on $PATH are going to be common.
-#my $GCC = `which arm-eabi-gcc`;
-#$GCC = qx(cd `dirname $GCC`; /bin/pwd);
-#chomp $GCC;
-#die "bad arm-eabi-gcc path" if $GCC !~ /(.*)\/prebuilt\//;
-#my $DROID = $1;
-
-#my $DROID="/opt/android-ndk";
-my $DROID="/usr/local/android-ndk";
-
-my $VERSION = "4.4.3";
 # NDK 1.5
+# my $VERSION = "4.4.0";
 #my $ABASE = "$DROID/platforms/android-1.5";
 #my $ALIB = "$ABASE/arch-arm/usr/lib";
 #my $TOOLCHAIN = "$DROID/prebuilt/linux-x86/arm-eabi-$VERSION";
@@ -51,9 +44,13 @@ my $VERSION = "4.4.3";
 #my $ALIB = "$ABASE/arch-arm/usr/lib";
 #my $TOOLCHAIN = "$DROID/prebuilt/linux-x86/arm-eabi-$VERSION";
 # NDK r5b
+#my $TOOLCHAIN = "$DROID/toolchains/arm-eabi-4.4.0/prebuilt/linux-x86";
+
+# NDK r6
+my $DROID="/usr/local/android-ndk";
+my $VERSION = "4.4.3";
 my $ABASE = "$DROID/platforms/android-3";
 my $ALIB = "$ABASE/arch-arm/usr/lib";
-#my $TOOLCHAIN = "$DROID/toolchains/arm-eabi-4.4.0/prebuilt/linux-x86";
 my $TOOLCHAIN = "$DROID/toolchains/arm-linux-androideabi-$VERSION/prebuilt/linux-x86";
 my $GCC="$TOOLCHAIN/bin/arm-linux-andoideabi-gcc";
 
@@ -70,7 +67,6 @@ my @preprocess_args = (
     "-DANDROID",
     "-DSK_RELEASE",
     "-DNDEBUG",
-#    "-include", "$DROID/system/core/include/arch/linux-arm/AndroidConfig.h",
     "-UDEBUG");
 
 my @warn_args = (
@@ -108,7 +104,6 @@ my @optimize_args = (
 
 my @link_args = (
     "-Bdynamic",
-#    "-Wl,-T,$TOOLCHAIN/arm-eabi/lib/ldscripts/armelf.x",
     "-Wl,-T,$TOOLCHAIN/arm-linux-androideabi/lib/ldscripts/armelf_linux_eabi.x",
     "-Wl,-dynamic-linker,/system/bin/linker",
     "-Wl,--gc-sections",
