@@ -127,7 +127,7 @@ my @shared_args = (
     "-Wl,--gc-sections",
     "-Wl,-shared,-Bsymbolic",
     "-L$ALIB",
-    "-Wl,-soname,re.so",
+#    "-Wl,-soname,re.so",
     "-Wl,--no-whole-archive",
     "$TOOLCHAIN/lib/gcc/arm-linux-androideabi/$VERSION/libgcc.a",
    "-lc",
