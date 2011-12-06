@@ -149,8 +149,6 @@ my @crystax_args = (
     "-lstdc++",
     "-lcrystax");
 
-print "crystax_args= @crystax_args\n";
-
 # Now implement a quick parser for a gcc-like command line
 
 my %MODES = ("-E"=>1, "-c"=>1, "-S"=>1, "-shared"=>1);
@@ -211,5 +209,5 @@ if($need_compile){
 if($need_link) { @cmd = (@cmd, @link_args); }
 if($need_shlink) { @cmd = (@cmd, @shared_args); }
 
-print "\e[45;37;1m", join(" ", @cmd), "\e[0m\n"; # Spit it out if you're curious
+#print "\e[45;37;1m", join(" ", @cmd), "\e[0m\n"; # Spit it out if you're curious
 exec(@cmd);
