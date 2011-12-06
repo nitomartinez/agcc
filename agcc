@@ -54,6 +54,8 @@ my $ALIB = "$ABASE/arch-arm/usr/lib";
 my $TOOLCHAIN = "$DROID/toolchains/arm-linux-androideabi-$VERSION/prebuilt/linux-x86";
 my $GCC="$TOOLCHAIN/bin/arm-linux-androideabi-gcc";
 
+my $ARCH="armeabi";
+
 my @include_paths = (
     "-I$ABASE/arch-arm/usr/include",
     "-I$ABASE/common/include"
@@ -136,6 +138,17 @@ my @shared_args = (
     #"-Wl,--no-undefined",
     "-Wl,--whole-archive"); # .a, .o input files go *after* here
 
+my @crystax_args = (
+    "-I$DROID/sources/cxx-stl/gnu-libstdc++/include",
+    "-I$DROID/sources/cxx-stl/gnu-libstdc++/libs/$ARCH/include",
+    "-I$DROID/sources/crystax/include",
+
+    "-L$DROID/sources/cxx-stl/gnu-libstdc++/libs/$ARCH",
+    "-L$DROID/sources/crystax/libs/$ARCH",
+
+    "-lstdc++",
+    "-lcrystax");
+
 # Now implement a quick parser for a gcc-like command line
 
 my %MODES = ("-E"=>1, "-c"=>1, "-S"=>1, "-shared"=>1);
@@ -146,6 +159,7 @@ my $warn = 0;
 my $opt = 0;
 my @args = ();
 my $have_src = 0;
+my $have_cxx = 0;
 while(@ARGV) {
     my $a = shift;
     if(defined $MODES{$a}) {
@@ -161,6 +175,7 @@ while(@ARGV) {
 	$opt = 1;
     } else {
 	if($a =~ /\.(c|cpp|cxx)$/i) { $have_src = 1; }
+	if($a =~ /\.(cpp|cxx)$/i) { $have_cxx = 1; }
 	push @args, $a;
     }
 }
@@ -169,11 +184,13 @@ my $need_cpp = 0;
 my $need_compile = 0;
 my $need_link = 0;
 my $need_shlink = 0;
+my $need_crystax = 0;
 if($mode eq "DEFAULT") { $need_cpp = $need_compile = $need_link = 1; }
 if($mode eq "-E") { $need_cpp = 1; }
 if($mode eq "-c") { $need_cpp = $need_compile = 1; }
 if($mode eq "-S") { $need_cpp = $need_compile = 1; }
 if($mode eq "-shared") { $need_shlink = 1; }
+if($have_cxx) { $need_crystax = 1; }
 
 if($have_src and $mode ne "-E") { $need_cpp = $need_compile = 1; }
 
@@ -181,6 +198,7 @@ if($have_src and $mode ne "-E") { $need_cpp = $need_compile = 1; }
 my @cmd = ("arm-linux-androideabi-gcc");
 @cmd = (@cmd, @args);
 if($mode ne "DEFAULT") { @cmd = (@cmd, $mode); }
+if($need_crystax) { @cmd = (@cmd, @crystax_args); }
 if(defined $out) { @cmd = (@cmd, "-o", $out); }
 if($need_cpp) { @cmd = (@cmd, @include_paths, @preprocess_args); }
 if($need_compile){
@@ -191,5 +209,5 @@ if($need_compile){
 if($need_link) { @cmd = (@cmd, @link_args); }
 if($need_shlink) { @cmd = (@cmd, @shared_args); }
 
-#print join(" ", @cmd), "\n"; # Spit it out if you're curious
+#print "\e[45;37;1m", join(" ", @cmd), "\e[0m\n"; # Spit it out if you're curious
 exec(@cmd);
