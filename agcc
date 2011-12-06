@@ -52,7 +52,7 @@ my $VERSION = "4.4.3";
 my $ABASE = "$DROID/platforms/android-3";
 my $ALIB = "$ABASE/arch-arm/usr/lib";
 my $TOOLCHAIN = "$DROID/toolchains/arm-linux-androideabi-$VERSION/prebuilt/linux-x86";
-my $GCC="$TOOLCHAIN/bin/arm-linux-andoideabi-gcc";
+my $GCC="$TOOLCHAIN/bin/arm-linux-androideabi-gcc";
 
 my @include_paths = (
     "-I$ABASE/arch-arm/usr/include",
